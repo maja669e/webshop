@@ -25,6 +25,7 @@ services:
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - wordpress_data:/var/www/html
+      - ./themes/plantshop:/var/www/html/wp-content/themes/plantshop
 
   phpmyadmin:
     image: phpmyadmin:latest
