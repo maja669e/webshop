@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
     agentFeedback: true,
   },
   cacheComponents: true,
+  // The browser loads the WordPress images directly from localhost:8003.
+  // That works both with npm run dev and when Next.js runs in Docker.
+  images: {
+    unoptimized: true,
+  },
   partialPrefetching: true,
   turbopack: {
     rules: {

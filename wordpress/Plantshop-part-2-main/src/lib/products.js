@@ -2,67 +2,31 @@
 import { cacheLife } from "next/cache";
 import products from "@/data/product";
 
-const scientificNames = [
-    "Pilea peperomioides",
-    "Monstera deliciosa",
-    "Ficus microcarpa",
-    "Pachira glabra",
-    "Beaucarnea recurvata",
-    "Dracaena trifasciata",
-    "Peperomia obtusifolia",
-    "Chamaedorea elegans",
-    "Strelitzia nicolai",
-    "Scindapsus pictus",
-    "Yucca gigantea",
-    "Dracaena reflexa var. angustifolia",
-    "Aglaonema commutatum",
-];
-
+// Person 1: the catalogue comes from our own WordPress endpoint /wp/v2/plant.
 export async function getProducts() {
     "use cache";
-
-    // Share the cached catalogue between Shop and featured products.
-    cacheLife("hours");
-
-    const token = process.env.TREFLE_API_TOKEN;
-
-    if (!token) {
-        throw new Error("Trefle API token is not configured.");
-    }
-    const url = new URL("https://trefle.io/api/v1/species");
-    url.searchParams.set("token", token);
-    url.searchParams.set(
-        "filter[scientific_name]",
-        scientificNames.join(",")
-    );
-
-    const response = await fetch(url);
-
+    // Cached for about a minute, so a price change in WordPress shows after a reload.
+    cacheLife("minutes");
+    // _embed adds the featured image, like in class. per_page=100 gets all plants.
+    const response = await fetch(`${process.env.WORDPRESS_API_URL}/plant?_embed&per_page=100`);
     if (!response.ok) {
-        throw new Error(`Trefle API request failed (${response.status})`);
+        throw new Error(`WordPress API request failed (${response.status})`);
     }
-    const results = await response.json();
-
-    if (!Array.isArray(results.data)) {
-        throw new Error("The Trefle API returned an invalid catalogue.");
-    }
-
-    // Match API records while preserving local prices and image path
-    return products.map((product) => {
-        const plant = results.data.find(
-            (item) => item.id === product.trefleId,
-        );
-
-        if (!plant?.scientific_name) {
-            throw new Error(`Missing API record for ${product.name}`);
-        }
-
-        return {
-            ...product,
-            name: plant.scientific_name,
-        };
-
-    });
+    const plants = await response.json();
+    // Same shape as the local products, so the cart and cards keep working.
+    return plants
+        .map((plant) => {
+            const image = plant._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
+            return {
+                id: plant.meta.shop_id,
+                name: plant.title.rendered,
+                price: plant.meta.price,
+                description: plant.content.rendered.replace(/<[^>]+>/g, "").trim(),
+                image,
+                gallery: [image],
+            };
+        })
+        .sort((a, b) => a.id - b.id);
 }
 
 export async function getProduct(id) {
@@ -117,7 +81,7 @@ export async function getCatalogue() {
     } catch {
         return {
             products,
-            error: "Live plant information is unavailable. You can still browse our plants.",
+            error: "WordPress is unavailable right now. You are seeing the saved plant list.",
         };
     }
 }
