@@ -4,12 +4,12 @@ import ProductCard from "@/components/products/ProductCard";
 import ProductGallery from "@/components/products/ProductGallery";
 import ProductInformation from "@/components/products/ProductInformation";
 import AddToCartForm from "@/components/cart/AddToCartForm";
-import localProducts from "@/data/product";
-import { getCatalogue } from "@/lib/products";
+import { getCatalogue, getProducts } from "@/lib/products";
 import { getPlant } from "@/lib/plant";
-// Prepare the known product routes so direct visits have ready page content.
-export function generateStaticParams() {
-  return localProducts.map((product) => ({ id: String(product.id) }));
+// Prepare a page for every plant in WordPress, so direct visits have ready page content.
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products.map((product) => ({ id: String(product.id) }));
 }
 export default async function ProductPage({ params }) {
   const { id } = await params;

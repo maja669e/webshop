@@ -6,8 +6,7 @@ export async function getPlant(id) {
   // Cached for about a minute, so changes in WordPress show after a reload.
   cacheLife("minutes");
 
-  const response = await fetch(`${process.env.WORDPRESS_API_URL}/plant?
-_embed&per_page=100`);
+  const response = await fetch(`${process.env.WORDPRESS_API_URL}/plant?_embed&per_page=100`);
 
   if (!response.ok) {
     throw new Error(`WordPress API request failed (${response.status})`);
@@ -21,13 +20,16 @@ _embed&per_page=100`);
     return null;
   }
   const image = plant._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
+  // The gallery field holds the extra image addresses, separated by commas.    
+  const extraImages = (plant.meta.gallery ?? "").split(",").map((url) => url.trim()).filter(Boolean);
 
   return {
     id: plant.meta.shop_id,
-    name: plant.title.rendered,
+    // Shown like before: the scientific name, with the WordPress title as a fallback.        
+    name: plant.meta.scientific_name || plant.title.rendered,
     price: plant.meta.price,
     image,
-    gallery: image ? [image] : [],
+    gallery: image ? [image, ...extraImages] : extraImages,
     description: plant.content.rendered.replace(/<[^>]+>/g, "").trim(),
     origin: plant.meta.origin,
     light: plant.meta.light,
