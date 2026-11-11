@@ -1,29 +1,16 @@
 <?php
-// Our own endpoint: the plant post type, built like the "cake" example from class.
+
+// Theme setup, like midnight_coven_setup from class.
+// The theme must allow featured images, otherwise the editor hides "Featured image".
 function plantshop_setup()
 {
-    add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
-    add_theme_support('responsive-embeds');
 
-    register_nav_menus(array(
-        'primary' => 'Hovedmenu',
-    ));
 }
 
 add_action('after_setup_theme', 'plantshop_setup');
 
-/* function midnight_coven_assets() {
-    wp_enqueue_style(
-        'midnight-coven-style',
-        get_stylesheet_uri(),
-        array(),
-        filemtime(get_stylesheet_directory() . '/style.css')
-    );
-}
-
-add_action('wp_enqueue_scripts', 'midnight_coven_assets'); */
-
+// Our own endpoint: the plant post type, built like the "cake" example from class.
 function plantshop_register_plant_post_type()
 {
     register_post_type('plant', [
@@ -48,6 +35,8 @@ function plantshop_register_plant_post_type()
         'note' => 'string',
         'family' => 'string',
         'genus' => 'string',
+        'scientific_name' => 'string',
+        'gallery' => 'string',
     ];
     foreach ($fields as $key => $type) {
         register_post_meta('plant', $key, [
