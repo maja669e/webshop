@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      context: .
+      args:
+        # Inside a container "localhost" is the container itself.
+        # host.docker.internal is your own computer, where WordPress runs on port 8003.
+        WORDPRESS_API_URL: http://host.docker.internal:8003/wp-json/wp/v2
+    environment:
+      WORDPRESS_API_URL: http://host.docker.internal:8003/wp-json/wp/v2
+    ports:
+      - "3000:3000"
