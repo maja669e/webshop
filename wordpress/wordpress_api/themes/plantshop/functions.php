@@ -9,7 +9,7 @@ function plantshop_register_plant_post_type()
         ],
         'public' => true,
         'has_archive' => true,
-        'show_in_rest' => true, // important REST API
+        'show_in_rest' => true, // important for Gutenberg + REST API
         'menu_icon' => 'dashicons-palmtree',
         'supports' => ['title', 'editor', 'thumbnail', 'custom-fields'],
         'rewrite' => ['slug' => 'plants'],
@@ -22,6 +22,8 @@ function plantshop_register_plant_post_type()
         'light' => 'string',
         'water' => 'string',
         'note' => 'string',
+        'family' => 'string',
+        'genus' => 'string',
     ];
     foreach ($fields as $key => $type) {
         register_post_meta('plant', $key, [
