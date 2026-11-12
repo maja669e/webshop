@@ -5,9 +5,8 @@ import AddToCartButton from "@/components/cart/AddToCartButton";
 
 export default function ProductCard({ product, headingLevel = "h2" }) {
   const Heading = headingLevel;
-  // WordPress sends the description; the local file is the fallback.
-  const description =
-    product.description ?? plantDetails[product.trefleId]?.description;
+  // WordPress sends the description.
+  const description = product.description;
   const productUrl = `/shop/${product.id}`;
 
   return (

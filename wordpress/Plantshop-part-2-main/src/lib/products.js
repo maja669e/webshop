@@ -1,4 +1,4 @@
-// Server functions combine Trefle data with local prices and images. Never expose the token to client code.
+// Server functions: the whole catalogue comes from our own WordPress API.
 import { cacheLife } from "next/cache";
 
 // Person 1: the catalogue comes from our own WordPress endpoint /wp/v2/plant.
@@ -18,71 +18,27 @@ export async function getProducts() {
   return plants
     .map((plant) => {
       const image = plant._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
+      const extraImages = (plant.meta.gallery ?? "").split(",").map((url) => url.trim()).filter(Boolean);
       return {
         id: plant.meta.shop_id,
-        name: plant.title.rendered,
+        name: plant.meta.scientific_name || plant.title.rendered,
         price: plant.meta.price,
         description: plant.content.rendered.replace(/<[^>]+>/g, "").trim(),
         image,
-        gallery: [image],
+        gallery: image ? [image, ...extraImages] : extraImages,
       };
     })
     .sort((a, b) => a.id - b.id);
 }
 
-export async function getProduct(id) {
-  "use cache";
-
-  // Reuse plant information and refresh it after the cache interval.
-  cacheLife("hours");
-
-  const product = products.find((item) => String(item.id) === id);
-
-  if (!product) {
-    return null;
-  }
-
-  const token = process.env.TREFLE_API_TOKEN;
-
-  if (!token) {
-    throw new Error("Trefle API token is not configured.");
-  }
-
-  const url = new URL(`https://trefle.io/api/v1/species/${product.trefleId}`);
-  url.searchParams.set("token", token);
-  const response = await fetch(url);
-
-  if (response.status === 404) {
-    return null;
-  }
-
-  if (!response.ok) {
-    throw new Error(`Trefle API request failed (${response.status})`);
-  }
-
-  const result = await response.json();
-  const plant = result.data;
-
-  if (plant?.id !== product.trefleId || !plant?.scientific_name) {
-    throw new Error("The plant API returned an invalid product.");
-  }
-
-  return {
-    ...product,
-    name: plant.scientific_name,
-    botanical: plant,
-  };
-}
-
-// Like Part 1, keep local products available when the catalogue API fails.
+// Show a message instead of crashing when WordPress is not running.
 export async function getCatalogue() {
   try {
     return { products: await getProducts(), error: "" };
   } catch {
     return {
-      products,
-      error:
-        "WordPress is unavailable right now. You are seeing the saved plant list.",
+      products: [],
+      error: "WordPress is unavailable right now. Please try again later.",
     };
   }
 }
