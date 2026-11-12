@@ -21,7 +21,7 @@ export default function MiniCart({ open, onNavigate }) {
               <li key={item.id}>
                 <Link
                   className="mini-cart-product"
-                  href={`/shop/${item.id}`}
+                  href={`/shop/${item.slug ?? item.id}`}
                   onClick={onNavigate}
                 >
                   <Image src={item.image} alt="" width={48} height={60} />

@@ -9,7 +9,7 @@ import { getPlant } from "@/lib/plant";
 // Prepare a page for every plant in WordPress, so direct visits have ready page content.
 export async function generateStaticParams() {
   const products = await getProducts();
-  return products.map((product) => ({ id: String(product.id) }));
+  return products.map((product) => ({ id: product.slug }));
 }
 export default async function ProductPage({ params }) {
   const { id } = await params;
@@ -51,6 +51,7 @@ export default async function ProductPage({ params }) {
             key={product.id}
             product={{
               id: product.id,
+              slug: product.slug,
               name: product.name,
               price: product.price,
               image: product.image,

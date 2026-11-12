@@ -7,7 +7,7 @@ export default function ProductCard({ product, headingLevel = "h2" }) {
   const Heading = headingLevel;
   // WordPress sends the description.
   const description = product.description;
-  const productUrl = `/shop/${product.id}`;
+  const productUrl = `/shop/${product.slug}`;
 
   return (
     <article className="product-card">

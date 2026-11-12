@@ -21,6 +21,7 @@ export async function getProducts() {
       const extraImages = (plant.meta.gallery ?? "").split(",").map((url) => url.trim()).filter(Boolean);
       return {
         id: plant.meta.shop_id,
+        slug: plant.slug,
         name: plant.meta.scientific_name || plant.title.rendered,
         price: plant.meta.price,
         description: plant.content.rendered.replace(/<[^>]+>/g, "").trim(),

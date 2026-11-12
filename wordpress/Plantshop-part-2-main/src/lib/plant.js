@@ -14,8 +14,8 @@ export async function getPlant(id) {
 
   const plants = await response.json();
 
-  // The shop uses shop_id in its addresses, e.g. /shop/2.
-  const plant = plants.find((item) => String(item.meta.shop_id) === String(id));
+  // The address uses the slug, e.g. /shop/monstera. The old number (/shop/2) still works.
+  const plant = plants.find((item) => item.slug === id || String(item.meta.shop_id) === String(id));
   if (!plant) {
     return null;
   }
@@ -25,6 +25,7 @@ export async function getPlant(id) {
 
   return {
     id: plant.meta.shop_id,
+    slug: plant.slug,
     // Shown like before: the scientific name, with the WordPress title as a fallback.        
     name: plant.meta.scientific_name || plant.title.rendered,
     price: plant.meta.price,

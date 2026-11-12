@@ -28,7 +28,7 @@ export default async function Home() {
         {heroPlant && (
           <Link
             className="home-hero-media"
-            href={`/shop/${heroPlant.id}`}
+            href={`/shop/${heroPlant.slug}`}
             aria-label="Explore our Monstera"
           >
             {heroImage && (

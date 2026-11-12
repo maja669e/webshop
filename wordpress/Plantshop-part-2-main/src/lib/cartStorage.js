@@ -12,6 +12,7 @@ export function loadCart(storageKey, products) {
 
       items.push({
         id: product.id,
+        slug: product.slug,
         name: typeof selection.name === "string" && selection.name.trim() ? selection.name : product.name,
         price: product.price,
         image: product.image,
