@@ -10,10 +10,10 @@ Use Node.js 24 LTS and install dependencies:
 npm ci
 ```
 
-Create `.env.local` in the project root and add your Trefle API token:
+Copy `.env.example` to `.env.local`. It points to our WordPress API:
 
 ```env
-TREFLE_API_TOKEN=your_token_here
+WORDPRESS_API_URL=http://localhost:8003/wp-json/wp/v2
 ```
 
 Start the development server:

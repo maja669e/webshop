@@ -1,4 +1,4 @@
-// Persist only cart selections; prices and images come from the current local catalogue.
+// Persist only cart selections; prices and images come from the current WordPress catalogue.
 export function loadCart(storageKey, products) {
   try {
     const saved = JSON.parse(window.localStorage.getItem(storageKey) ?? "[]");

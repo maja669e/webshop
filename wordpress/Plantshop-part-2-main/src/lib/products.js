@@ -14,7 +14,7 @@ export async function getProducts() {
     throw new Error(`WordPress API request failed (${response.status})`);
   }
   const plants = await response.json();
-  // Same shape as the local products, so the cart and cards keep working.
+  // The shape the cards, cart and checkout use.
   return plants
     .map((plant) => {
       const image = plant._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
