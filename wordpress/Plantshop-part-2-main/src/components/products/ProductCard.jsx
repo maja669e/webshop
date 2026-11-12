@@ -1,7 +1,6 @@
 // A server component renders product content and delegates cart interaction to a client component.
 import Image from "next/image";
 import Link from "next/link";
-import plantDetails from "@/data/plantDetails";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 
 export default function ProductCard({ product, headingLevel = "h2" }) {

@@ -37,9 +37,3 @@ npm run build
 
 GitHub Actions runs lint and build on pushes and pull requests to `main`.
 Vercel automatically deploys pushes to `main`.
-
-Set `TREFLE_API_TOKEN` in GitHub Actions secrets and Vercel environment variables.
-
-## Credits
-
-Plant data: [Trefle.io](https://trefle.io/) — CC BY 4.0.

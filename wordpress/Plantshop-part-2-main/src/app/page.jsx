@@ -3,11 +3,13 @@ import Link from "next/link";
 import { Suspense } from "react";
 import ProductGridSkeleton from "@/components/products/ProductGridSkeleton";
 import FeaturedProducts from "@/components/products/FeaturedProducts";
-import products from "@/data/product";
+import { getPlant } from "@/lib/plant";
 
-const heroPlant = products.find((product) => product.id === 2);
+export default async function Home() {
+  // The large front-page photo is the Monstera home image from WordPress.
+  const heroPlant = await getPlant("2");
+  const heroImage = heroPlant?.gallery[1] ?? heroPlant?.image;
 
-export default function Home() {
   return (
     <main className="home">
       <section className="home-hero" aria-labelledby="home-heading">
@@ -22,19 +24,24 @@ export default function Home() {
             Explore our plants
           </Link>
         </div>
-        <Link
-          className="home-hero-media"
-          href={`/shop/${heroPlant.id}`}
-          aria-label="Explore our Monstera"
-        >
-          <Image
-            src={heroPlant.gallery[1]}
-            alt="A Monstera in a cream pot on a wooden table beside a sofa."
-            width={1086}
-            height={1448}
-            sizes="(max-width: 540px) 100vw, 390px"
-          />
-        </Link>
+
+        {heroPlant && (
+          <Link
+            className="home-hero-media"
+            href={`/shop/${heroPlant.id}`}
+            aria-label="Explore our Monstera"
+          >
+            {heroImage && (
+              <Image
+                src={heroImage}
+                alt="A Monstera in a cream pot on a wooden table beside a sofa."
+                width={1086}
+                height={1448}
+                sizes="(max-width: 540px) 100vw, 390px"
+              />
+            )}
+          </Link>
+        )}
       </section>
 
       <section className="home-featured" aria-labelledby="featured-heading">
