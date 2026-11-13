@@ -44,3 +44,25 @@ Route::put('/products/{id}', function (Request $request, $id) {
     $product->update($data);
     return response()->json($product, 200);
 })->name('products.update');
+
+// Get all products
+Route::get('/products', function () {
+    return Product::all();
+});
+
+// Get one product
+Route::get('/products/{id}', function ($id) {
+    $product = Product::findOrFail($id);
+
+    return response()->json($product);
+});
+
+// Delete a product
+Route::delete('/products/{id}', function ($id) {
+    $product = Product::findOrFail($id);
+    $product->delete();
+
+    return response()->json([
+        'message' => 'Product deleted successfully'
+    ]);
+})->name('products.destroy');
