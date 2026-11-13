@@ -1,7 +1,7 @@
 // Server functions: the whole catalogue comes from our own WordPress API.
 import { cacheLife } from "next/cache";
 
-// Person 1: the catalogue comes from our own WordPress endpoint /wp/v2/plant.
+// The catalogue comes from our own WordPress endpoint /wp/v2/plant.
 export async function getProducts() {
   "use cache";
   // Cached for about a minute, so a price change in WordPress shows after a reload.
