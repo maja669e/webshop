@@ -1,6 +1,6 @@
 # SPIRE — Part 2
 
-A plant shop rebuilt with Next.js App Router.
+A plant shop built with Next.js App Router. Products are fetched from our Laravel REST API.
 
 ## Getting Started
 
@@ -10,11 +10,13 @@ Use Node.js 24 LTS and install dependencies:
 npm ci
 ```
 
-Create `.env.local` in the project root and add your Trefle API token:
+Create `.env.local` in the project root and add the URL of the Laravel API:
 
 ```env
-TREFLE_API_TOKEN=your_token_here
+LARAVEL_API_URL=http://127.0.0.1:8000/api
 ```
+
+The Laravel API must be running first. See `../README.md`.
 
 Start the development server:
 
@@ -38,8 +40,4 @@ npm run build
 GitHub Actions runs lint and build on pushes and pull requests to `main`.
 Vercel automatically deploys pushes to `main`.
 
-Set `TREFLE_API_TOKEN` in GitHub Actions secrets and Vercel environment variables.
-
-## Credits
-
-Plant data: [Trefle.io](https://trefle.io/) — CC BY 4.0.
+Set `LARAVEL_API_URL` in GitHub Actions secrets and Vercel environment variables.
