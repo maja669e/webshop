@@ -4,13 +4,12 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-import products from "@/data/product";
 import { loadCart, saveCart } from "@/lib/cartStorage";
 
 const storageKey = "spire-part-2-cart";
 const CartContext = createContext(null);
 
-export default function CartProvider({ children }) {
+export default function CartProvider({ children, products }) {
   const [items, setItems] = useState([]);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -20,7 +19,7 @@ export default function CartProvider({ children }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems(loadCart(storageKey, products));
     setLoaded(true);
-  }, []);
+  }, [products]);
 
   useEffect(() => {
     // Do not overwrite a saved cart with the empty server-rendered initial state.

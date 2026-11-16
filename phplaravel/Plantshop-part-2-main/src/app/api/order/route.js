@@ -1,4 +1,4 @@
-import products from "@/data/product";
+import { getProducts } from "@/lib/products";
 
 export async function POST(request) {
     let body;
@@ -18,7 +18,16 @@ export async function POST(request) {
             { status: 400 },
         );
     }
-
+//Fetch the product data from the Laravel API.
+    let products;
+    try {
+        products = await getProducts();
+    } catch {
+        return Response.json(
+            { error: "Unable to fetch product data from the API." },
+            { status: 500 },
+        );
+    }
     let total = 0;
 
     for (const item of body.items) {

@@ -1,112 +1,54 @@
-// Server functions combine Trefle data with local prices and images. Never expose the token to client code.
+//server functions to fetch products from Laravel and Trefle APIs. The Laravel API is used for the product catalogue, while the Trefle API is used for plant information.
 import { cacheLife } from "next/cache";
 import products from "@/data/product";
 
-const scientificNames = [
-    "Pilea peperomioides",
-    "Monstera deliciosa",
-    "Ficus microcarpa",
-    "Pachira glabra",
-    "Beaucarnea recurvata",
-    "Dracaena trifasciata",
-    "Peperomia obtusifolia",
-    "Chamaedorea elegans",
-    "Strelitzia nicolai",
-    "Scindapsus pictus",
-    "Yucca gigantea",
-    "Dracaena reflexa var. angustifolia",
-    "Aglaonema commutatum",
-];
+//Laravel only stores the main image, so build the 4 gallery images from it.
+function addGalleryImages(product) {
+    const gallery = ["main", "home", "detail", "angle"].map((name) => 
+        product.image.replace("main", name)
+    );
+    return { ...product, gallery };
+};
+
+
 
 export async function getProducts() {
     "use cache";
 
-    // Share the cached catalogue between Shop and featured products.
-    cacheLife("hours");
 
-    const token = process.env.TREFLE_API_TOKEN;
+//Short cache so new or update products from Laravel show up quickly.
+    cacheLife("minutes");
 
-    if (!token) {
-        throw new Error("Trefle API token is not configured.");
-    }
-    const url = new URL("https://trefle.io/api/v1/species");
-    url.searchParams.set("token", token);
-    url.searchParams.set(
-        "filter[scientific_name]",
-        scientificNames.join(",")
-    );
-
-    const response = await fetch(url);
+    const response = await fetch(`${process.env.LARAVEL_API_URL}/products`, {
+        headers: {Accept: "application/json"},
+    });
 
     if (!response.ok) {
-        throw new Error(`Trefle API request failed (${response.status})`);
+        throw new Error(`Laravel API request failed (${response.status})`);
     }
     const results = await response.json();
+    return results.map(addGalleryImages);
 
-    if (!Array.isArray(results.data)) {
-        throw new Error("The Trefle API returned an invalid catalogue.");
-    }
-
-    // Match API records while preserving local prices and image path
-    return products.map((product) => {
-        const plant = results.data.find(
-            (item) => item.id === product.trefleId,
-        );
-
-        if (!plant?.scientific_name) {
-            throw new Error(`Missing API record for ${product.name}`);
-        }
-
-        return {
-            ...product,
-            name: plant.scientific_name,
-        };
-
-    });
 }
 
 export async function getProduct(id) {
     "use cache";
 
-    // Reuse plant information and refresh it after the cache interval.
-    cacheLife("hours");
+    cacheLife("minutes");
 
-    const product = products.find((item) => String(item.id) === id);
+    const response = await fetch(`${process.env.LARAVEL_API_URL}/products/${id}`, {
+        headers: {Accept: "application/json"},
+    });
 
-    if (!product) { return null; }
-
-    const token = process.env.TREFLE_API_TOKEN;
-
-    if (!token) {
-        throw new Error("Trefle API token is not configured.");
-    }
-
-    const url = new URL(`https://trefle.io/api/v1/species/${product.trefleId}`,
-
-    );
-    url.searchParams.set("token", token);
-    const response = await fetch(url);
-
-    if (response.status === 404) {
+    //findOrFail in Laravel returns 404 if the product is not found, so we throw an error here to be handled by the calling function.
+    if(response.status === 404) {
         return null;
     }
-
     if (!response.ok) {
-        throw new Error(`Trefle API request failed (${response.status})`);
+        throw new Error(`Laravel API request failed (${response.status})`);
     }
-
-    const result = await response.json();
-    const plant = result.data;
-
-    if (plant?.id !== product.trefleId || !plant?.scientific_name) {
-        throw new Error("The plant API returned an invalid product.");
-    }
-
-    return {
-        ...product,
-        name: plant.scientific_name,
-        botanical: plant,
-    };
+    const product = await response.json();
+    return addGalleryImages(product);
 }
 
 

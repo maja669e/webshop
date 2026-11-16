@@ -1,28 +1,26 @@
-import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductCard from "@/components/products/ProductCard";
 import ProductGallery from "@/components/products/ProductGallery";
 import ProductInformation from "@/components/products/ProductInformation";
-import ProductDescription from "@/components/products/ProductDescription";
 import AddToCartForm from "@/components/cart/AddToCartForm";
-import plantDetails from "@/data/plantDetails";
-import localProducts from "@/data/product";
-import { getCatalogue } from "@/lib/products";
+import { getCatalogue, getProduct, getProducts } from "@/lib/products";
 
 // Prepare the known product routes so direct visits have ready page content.
-export function generateStaticParams() {
-  return localProducts.map((product) => ({ id: String(product.id) }));
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products.map((product) => ({ id: String(product.id) }));
 }
 
 export default async function ProductPage({ params }) {
   const { id } = await params;
-  if (!localProducts.some((product) => String(product.id) === id)) notFound();
-
+  const product = await getProduct(id);
+  if (!product) {
+    notFound();
+  }
   const { products } = await getCatalogue();
-  const product = products.find((item) => String(item.id) === id);
-  const description = plantDetails[product.trefleId]?.description;
   const relatedProducts = products.filter((item) => item.id !== product.id).slice(0, 3);
+
 
   return (
     <main className="plant-page">
@@ -39,17 +37,14 @@ export default async function ProductPage({ params }) {
         <div className="plant-summary">
           <h1>{product.name}</h1>
           <p className="plant-price">{product.price} kr</p>
-          {/* The local description stays visible while the API response streams in. */}
-          <Suspense fallback={description ? <p>{description}</p> : null}>
-            <ProductDescription id={product.id} fallback={description} />
-          </Suspense>
-          <AddToCartForm key={product.id} product={{
+          {product.description && <p className="plant-description">{product.description}</p>}
+          <AddToCartForm key={ `cart-${product.id}` } product={{
             id: product.id,
             name: product.name,
             price: product.price,
             image: product.image,
           }} />
-          <ProductInformation key={product.id} product={product} />
+          <ProductInformation key={ `info-${product.id}` } product={product} />
         </div>
       </article>
 
