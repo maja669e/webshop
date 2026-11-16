@@ -34,45 +34,21 @@ export async function getProducts() {
 export async function getProduct(id) {
     "use cache";
 
-    // Reuse plant information and refresh it after the cache interval.
-    cacheLife("hours");
+    cacheLife("seconds");
 
-    const product = products.find((item) => String(item.id) === id);
+    const response = await fetch(`${process.env.LARAVEL_API_URL}/products/${id}`, {
+        headers: {Accept: "application/json"},
+    });
 
-    if (!product) { return null; }
-
-    const token = process.env.TREFLE_API_TOKEN;
-
-    if (!token) {
-        throw new Error("Trefle API token is not configured.");
-    }
-
-    const url = new URL(`https://trefle.io/api/v1/species/${product.trefleId}`,
-
-    );
-    url.searchParams.set("token", token);
-    const response = await fetch(url);
-
-    if (response.status === 404) {
+    //findOrFail in Laravel returns 404 if the product is not found, so we throw an error here to be handled by the calling function.
+    if(response.status === 404) {
         return null;
     }
-
     if (!response.ok) {
-        throw new Error(`Trefle API request failed (${response.status})`);
+        throw new Error(`Laravel API request failed (${response.status})`);
     }
-
-    const result = await response.json();
-    const plant = result.data;
-
-    if (plant?.id !== product.trefleId || !plant?.scientific_name) {
-        throw new Error("The plant API returned an invalid product.");
-    }
-
-    return {
-        ...product,
-        name: plant.scientific_name,
-        botanical: plant,
-    };
+    const product = await response.json();
+    return addGalleryImages(product);
 }
 
 
