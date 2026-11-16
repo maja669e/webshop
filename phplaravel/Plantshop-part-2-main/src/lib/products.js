@@ -17,7 +17,7 @@ export async function getProducts() {
 
 
 //Short cache so new or update products from Laravel show up quickly.
-    cacheLife("seconds");
+    cacheLife("minutes");
 
     const response = await fetch(`${process.env.LARAVEL_API_URL}/products`, {
         headers: {Accept: "application/json"},
@@ -34,7 +34,7 @@ export async function getProducts() {
 export async function getProduct(id) {
     "use cache";
 
-    cacheLife("seconds");
+    cacheLife("minutes");
 
     const response = await fetch(`${process.env.LARAVEL_API_URL}/products/${id}`, {
         headers: {Accept: "application/json"},
